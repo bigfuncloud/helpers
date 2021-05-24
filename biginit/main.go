@@ -15,11 +15,18 @@ func main() {
 	commands := os.Args[1:]
 	wg := sync.WaitGroup{}
 	for _, command := range commands {
-		words, err := shellquote.Split(command)
-		if err != nil {
-			log.Printf("invalid command: %s: %v", command, err)
-			continue
+		var words []string
+		if command == "caddy" {
+			words = []string{"caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"}
+		} else {
+			var err error
+			words, err = shellquote.Split(command)
+			if err != nil {
+				log.Printf("invalid command: %s: %v", command, err)
+				continue
+			}
 		}
+
 		wg.Add(1)
 		go func() {
 			if err := run(words); err != nil {
